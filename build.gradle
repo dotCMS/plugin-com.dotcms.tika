@@ -23,6 +23,7 @@ dependencies {
     }
 }
 
+jar.baseName = 'com.dotcms.tika'
 jar {
     manifest {
         attributes (
