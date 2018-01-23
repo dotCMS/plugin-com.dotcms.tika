@@ -1,0 +1,51 @@
+plugins {
+    id 'biz.aQute.bnd.builder' version '3.3.0'
+}
+
+sourceCompatibility = '1.8'
+version = '0.1'
+
+repositories {
+    maven { url "http://repo.dotcms.com/artifactory/libs-release" }
+}
+
+configurations {
+    osgiLibs
+}
+
+dependencies {
+    compile fileTree(dir: '/Users/jonathan/Projects/dotCMS/repository/git/tomcat8/webapps/ROOT/WEB-INF/lib/', include: '*.jar')
+    compile  (group: 'org.apache.tika', name: 'tika-core', version: '1.17'){
+        transitive = false
+    }
+    compile (group: 'org.apache.tika', name: 'tika-bundle', version: '1.17'){
+        transitive = false
+    }
+}
+
+jar {
+    manifest {
+        attributes (
+                'Bundle-Vendor': 'dotCMS',
+                'Bundle-Description': 'dotCMS - Tika OSGI Provider',
+                'Bundle-DocURL': 'https://dotcms.com/',
+                'Bundle-Activator': 'com.dotcms.osgi.tika.Activator',
+                'DynamicImport-Package': '*',
+                'Import-Package': '''
+                    javax.servlet.http;version=0,
+                    javax.servlet;version=0,
+                    com.dotmarketing.filters;version=0,
+                    com.dotmarketing.osgi;version=0,
+                    com.dotmarketing.util;version=0,
+                    com.dotmarketing.exception;version=0,
+                    org.apache.felix.http.api;version=0,
+                    org.osgi.framework;version=0,
+                    org.osgi.service.http;version=0
+                '''
+        )
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.2'
+}
