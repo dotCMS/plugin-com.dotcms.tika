@@ -7,8 +7,14 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 import org.apache.tika.Tika;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.strings.StringsParser;
+import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.SAXException;
 
 /**
  * @author Jonathan Gamba
@@ -103,6 +109,26 @@ public class TikaProxy implements TikaProxyService {
     @Override
     public String parseToString(URL url) throws Exception {
         return this.tika.parseToString(url);
+    }
+
+    @Override
+    public String parseToStringAsPlainText(InputStream stream) throws Exception {
+
+        BodyContentHandler handler = new BodyContentHandler(this.tika.getMaxStringLength());
+
+        try {
+            StringsParser parse = new StringsParser();
+            ParseContext context = new ParseContext();
+            context.set(Parser.class, parse);
+
+            parse.parse(stream, handler, this.metadata, context);
+        } catch (SAXException var8) {
+            throw new TikaException("Unexpected SAX processing failure", var8);
+        } finally {
+            stream.close();
+        }
+
+        return handler.toString();
     }
 
     @Override

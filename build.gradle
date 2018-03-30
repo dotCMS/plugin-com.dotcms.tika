@@ -3,7 +3,7 @@ plugins {
 }
 
 sourceCompatibility = '1.8'
-version = '0.1'
+version = '0.2'
 
 repositories {
     maven { url "http://repo.dotcms.com/artifactory/libs-release" }
@@ -14,11 +14,14 @@ configurations {
 }
 
 dependencies {
-    compile fileTree(dir: '/Users/jonathan/Projects/dotCMS/repository/git/tomcat8/webapps/ROOT/WEB-INF/lib/', include: '*.jar')
+    compile('com.dotcms:dotcms:5.0') { transitive = true }
     compile  (group: 'org.apache.tika', name: 'tika-core', version: '1.17'){
         transitive = false
     }
     compile (group: 'org.apache.tika', name: 'tika-bundle', version: '1.17'){
+        transitive = false
+    }
+    compile (group: 'org.apache.tika', name: 'tika-parsers', version: '1.17'){
         transitive = false
     }
 }
