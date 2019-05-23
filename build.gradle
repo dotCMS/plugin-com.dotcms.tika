@@ -1,3 +1,5 @@
+import java.util.jar.JarFile
+
 buildscript {
     repositories {
         mavenCentral()
@@ -39,13 +41,12 @@ dependencies {
     compile (group: 'org.apache.tika', name: 'tika-parsers', version: '1.20'){
         transitive = false
     }
-    compile (group: 'xerces', name: 'xercesImpl', version: '2.11.0'){
-        transitive = false
-    }
 }
 
-jar.baseName = 'com.dotcms.tika'
 jar {
+
+    archivesBaseName = 'com.dotcms.tika'
+
     manifest {
         attributes (
                 'Bundle-Vendor': 'dotCMS',
@@ -68,6 +69,3 @@ jar {
     }
 }
 
-wrapper() {
-    gradleVersion = '5.4'
-}
