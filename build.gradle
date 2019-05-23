@@ -1,8 +1,23 @@
-plugins {
-    id 'biz.aQute.bnd.builder' version '3.3.0'
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:4.0.0'
+    }
 }
 
-sourceCompatibility = '1.8'
+
+apply plugin: 'java'
+apply plugin: 'biz.aQute.bnd.builder'
+
+// Compile Java.
+targetCompatibility = 1.8
+sourceCompatibility = 1.8
+
+//targetCompatibility = 11
+//sourceCompatibility = 11
+
 version = '0.2'
 
 repositories {
@@ -14,14 +29,17 @@ configurations {
 }
 
 dependencies {
-    compile('com.dotcms:dotcms:5.0') { transitive = true }
-    compile  (group: 'org.apache.tika', name: 'tika-core', version: '1.17'){
+    compile('com.dotcms:dotcms:5.1.5') { transitive = true }
+    compile  (group: 'org.apache.tika', name: 'tika-core', version: '1.20'){
         transitive = false
     }
-    compile (group: 'org.apache.tika', name: 'tika-bundle', version: '1.17'){
+    compile (group: 'org.apache.tika', name: 'tika-bundle', version: '1.20'){
         transitive = false
     }
-    compile (group: 'org.apache.tika', name: 'tika-parsers', version: '1.17'){
+    compile (group: 'org.apache.tika', name: 'tika-parsers', version: '1.20'){
+        transitive = false
+    }
+    compile (group: 'xerces', name: 'xercesImpl', version: '2.11.0'){
         transitive = false
     }
 }
@@ -50,6 +68,6 @@ jar {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.2'
+wrapper() {
+    gradleVersion = '5.4'
 }
