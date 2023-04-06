@@ -3,10 +3,11 @@ plugins {
 }
 
 sourceCompatibility = '1.8'
-version = '0.2'
+version = '1.28.5'
 
 repositories {
     maven { url "http://repo.dotcms.com/artifactory/libs-release" }
+    mavenCentral()
 }
 
 configurations {
@@ -14,14 +15,15 @@ configurations {
 }
 
 dependencies {
-    compile('com.dotcms:dotcms:5.0') { transitive = true }
-    compile  (group: 'org.apache.tika', name: 'tika-core', version: '1.17'){
+
+    compile ('com.dotcms:dotcms:22.05') { transitive = true }
+    compile  (group: 'org.apache.tika', name: 'tika-core', version: '1.28.5'){
         transitive = false
     }
-    compile (group: 'org.apache.tika', name: 'tika-bundle', version: '1.17'){
+    compile (group: 'org.apache.tika', name: 'tika-bundle', version: '1.28.5'){
         transitive = false
     }
-    compile (group: 'org.apache.tika', name: 'tika-parsers', version: '1.17'){
+    compile (group: 'org.apache.tika', name: 'tika-parsers', version: '1.28.5'){
         transitive = false
     }
 }
