@@ -7,7 +7,6 @@ version = '2.7.0'
 
 repositories {
     maven { url "http://repo.dotcms.com/artifactory/libs-release" }
-    mavenCentral()
 }
 
 configurations {
@@ -19,12 +18,15 @@ dependencies {
     compile  (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0'){
         transitive = false
     }
-    compile (group: 'org.apache.tika', name: 'tika-bundle-standard', version: '2.7.0'){
+    compile(group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0') {
         transitive = false
     }
-    compile (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version: '2.7.0'){
-        transitive = false
-    }
+//    compile(group: 'org.apache.tika', name: 'tika-bundle-standard', version:'2.7.0') {
+//        transitive = false
+//    }
+//    compile(group: 'org.apache.tika', name: 'tika-parsers', version:'2.7.0') {
+//        transitive = false
+//    }
 }
 
 jar.baseName = 'com.dotcms.tika'
