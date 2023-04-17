@@ -3,7 +3,7 @@ plugins {
 }
 
 sourceCompatibility = '1.8'
-version = '0.2'
+version = '2.7.0'
 
 repositories {
     maven { url "http://repo.dotcms.com/artifactory/libs-release" }
@@ -14,19 +14,25 @@ configurations {
 }
 
 dependencies {
-    compile('com.dotcms:dotcms:5.0') { transitive = true }
-    compile  (group: 'org.apache.tika', name: 'tika-core', version: '1.17'){
-        transitive = false
-    }
-    compile (group: 'org.apache.tika', name: 'tika-bundle', version: '1.17'){
-        transitive = false
-    }
-    compile (group: 'org.apache.tika', name: 'tika-parsers', version: '1.17'){
-        transitive = false
-    }
+    compile ('com.dotcms:dotcms:22.05') { transitive = true }
+    compile (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0') { transitive = false }
+    compile (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0') {transitive = false }
+
+    osgiLibs (group: 'commons-io', name: 'commons-io', version: '2.11.0') { transitive = false }
+    osgiLibs (group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.3') { transitive = false }
+    osgiLibs (group: 'org.slf4j', name: 'jcl-over-slf4j', version: '2.0.3') { transitive = false }
+    osgiLibs (group: 'org.slf4j', name: 'slf4j-api', version: '2.0.3') { transitive = false }
+    osgiLibs (group: 'org.slf4j', name: 'slf4j-reload4j', version: '2.0.3') { transitive = false }
+    osgiLibs (group: 'ch.qos.reload4j', name: 'reload4j', version: '1.2.25') { transitive = false }
+
 }
 
+import java.util.jar.*
 jar.baseName = 'com.dotcms.tika'
+/////////////////////////
+//Plugin jar
+/////////////////////////
+
 jar {
     manifest {
         attributes (
@@ -34,6 +40,7 @@ jar {
                 'Bundle-Description': 'dotCMS - Tika OSGI Provider',
                 'Bundle-DocURL': 'https://dotcms.com/',
                 'Bundle-Activator': 'com.dotcms.osgi.tika.Activator',
+                'Bundle-classpath': "${classPathLibraries()}",
                 'DynamicImport-Package': '*',
                 'Import-Package': '''
                     javax.servlet.http;version=0,
@@ -49,6 +56,109 @@ jar {
         )
     }
 }
+
+task cleanLibFiles(type: Delete) {
+    delete fileTree("src/main/resources/libs").matching {
+        include "**/*"
+    }
+}
+
+task copyToLib(type: Copy) {
+    into "src/main/resources/libs"
+    from configurations.osgiLibs
+}
+
+copyToLib.dependsOn cleanLibFiles
+compileJava.dependsOn copyToLib
+
+
+jar.finalizedBy 'fragmentJar'
+
+/**
+ * Searches for jars inside the src/main/resources/libs folder, the returned list is used for the
+ * Bundle-ClassPath attribute.
+ * @return String with the list of jars inside the src/main/resources/libs folder or empty if the
+ * folder does not exist or it is empty.
+ */
+def classPathLibraries() {
+
+    def bundleClassPath = ""
+    fileTree("src/main/resources/libs").filter { it.isFile() }.each { bundleClassPath += "libs/" + it.name + "," }
+
+    if (bundleClassPath != "") {
+        bundleClassPath = '.,' + bundleClassPath
+    }
+
+    return bundleClassPath
+}
+
+/////////////////////////
+//Fragment jar
+/////////////////////////
+
+ext {
+    bundleName = "OSGI 3rd Party library fragment"
+    bundleDescription = "dotCMS - OSGI 3rd Party library fragment"
+    fragmentHost = "system.bundle; extension:=framework"
+    bundleSymbolicName = "" //Auto generated based on the plugin jar
+    bundleVersion = "" //Auto generated based on the plugin jar
+    importPackage = "" //Auto generated based on the plugin jar
+    bundleManifestVersion = "" //Auto generated based on the plugin jar
+    bundleDocURL = "" //Auto generated based on the plugin jar
+    bundleVendor = "" //Auto generated based on the plugin jar
+}
+
+/**
+ * The import generates versions like this: version="[1.8,2)"
+ * That format does not work for the export, so we need to replace it
+ * to: version=0
+ */
+ext.fixVersionNumber = {importValue ->
+    return importValue.replaceAll("\"\\[[0-9.,]+\\)\"", "0")
+}
+
+/**
+ * Reads the Manifest file of the just created plugin jar in order to get the required info
+ * to automatically create the fragment jar.
+ */
+task readManifesttAttributes {
+    doFirst {
+        File file = configurations.baseline.singleFile
+        JarFile jar = new JarFile(file)
+        Attributes manifest = jar.getManifest().getMainAttributes()
+        bundleSymbolicName = "${manifest.getValue('Bundle-SymbolicName')}"
+        bundleVersion = "${manifest.getValue('Bundle-Version')}"
+        importPackage = "${manifest.getValue('Import-Package')}"
+        bundleManifestVersion = "${manifest.getValue('Bundle-ManifestVersion')}"
+        bundleDocURL = "${manifest.getValue('Bundle-DocURL')}"
+        bundleVendor = "${manifest.getValue('Bundle-Vendor')}"
+    }
+}
+
+task fragmentJar(type: Jar) {
+
+    doFirst {
+        //Setting the fragment jar name
+        baseName = jar.baseName
+        archiveName = "${baseName}.fragment-${version}.jar"
+        importPackage = fixVersionNumber(importPackage)
+
+        manifest {
+            attributes (
+                    'Bundle-Name': "${bundleName}",
+                    'Bundle-Description': "${bundleDescription}",
+                    'Bundle-Vendor': "${bundleVendor}",
+                    'Bundle-Version': "${version}",
+                    'Bundle-SymbolicName': "${baseName}.fragment",
+                    'Bundle-ManifestVersion': "${bundleManifestVersion}",
+                    'Bundle-DocURL': "${bundleDocURL}",
+                    'Fragment-Host': "${fragmentHost}",
+                    'Export-Package': "${importPackage}"
+            )
+        }
+    }
+}
+fragmentJar.dependsOn 'readManifesttAttributes'
 
 task wrapper(type: Wrapper) {
     gradleVersion = '4.2'
