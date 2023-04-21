@@ -19,20 +19,16 @@ configurations {
 dependencies {
     compile ('com.dotcms:dotcms:22.05') { transitive = true }
     compile (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0') { transitive = false }
-    compile (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0') {
-        transitive = false
-        exclude (group: 'commons-logging')
-        exclude (group: 'org.slf4j')
-        exclude (group: 'log4j')
-        exclude (group: 'slf4j-log4j12')
-        exclude (group: 'slf4j-reload4j')
-        exclude (group: 'logback-core')
-        exclude (group: 'logback-classic')
-        exclude (group: 'reload4j')
-    }
+    compile (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0') { transitive = false }
+    compile (group: 'org.apache.tika', name: 'tika-parser-scientific-package', version: '2.7.0') { transitive = false }
+    compile (group: 'org.apache.tika', name: 'tika-parser-sqlite3-package', version: '2.7.0') { transitive = false }
+    compile (group: 'org.apache.tika', name: 'tika-emitter-opensearch', version: '2.7.0') { transitive = false }
 
     osgiLibs (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0') { transitive = false }
     osgiLibs (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0') { transitive = false }
+    osgiLibs (group: 'org.apache.tika', name: 'tika-parser-scientific-package', version:'2.7.0') { transitive = false }
+    osgiLibs (group: 'org.apache.tika', name: 'tika-parser-sqlite3-package', version:'2.7.0') { transitive = false }
+    osgiLibs (group: 'org.apache.tika', name: 'tika-emitter-opensearch', version: '2.7.0') { transitive = false }
     osgiLibs (group: 'org.slf4j', name: 'slf4j-api', version: '2.0.3') { transitive = false }
     osgiLibs (group: 'org.slf4j', name: 'jul-to-slf4j', version: '2.0.3') { transitive = false }
     osgiLibs (group: 'org.slf4j', name: 'jcl-over-slf4j', version: '2.0.3') { transitive = false }
