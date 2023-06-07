@@ -10,10 +10,10 @@ import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.strings.StringsParser;
+import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
  */
 public class TikaProxy implements TikaProxyService {
 
+    private static Logger LOG = LoggerFactory.getLogger(TikaProxy.class);
     private Tika tika;
     private Metadata metadata;
 
@@ -88,6 +89,7 @@ public class TikaProxy implements TikaProxyService {
 
     @Override
     public Reader parse(File file) throws IOException {
+        LOG.info("Parsing File: {}", file.getPath());
         return this.tika.parse(file, this.metadata);
     }
 
@@ -117,14 +119,19 @@ public class TikaProxy implements TikaProxyService {
         BodyContentHandler handler = new BodyContentHandler(this.tika.getMaxStringLength());
 
         try {
-            StringsParser parse = new StringsParser();
-            ParseContext context = new ParseContext();
-            context.set(Parser.class, parse);
+            AutoDetectParser parser = new AutoDetectParser();
+            Metadata metadata = new Metadata();
+            parser.parse(stream, handler, metadata);
 
-            parse.parse(stream, handler, this.metadata, context);
         } catch (SAXException var8) {
             throw new TikaException("Unexpected SAX processing failure", var8);
-        } finally {
+
+        } catch (Exception e) {
+            throw new TikaException("Unexpected SAX processing failure", e);
+
+        }
+
+        finally {
             stream.close();
         }
 

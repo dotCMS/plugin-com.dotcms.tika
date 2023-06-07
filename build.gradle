@@ -3,40 +3,36 @@ plugins {
 }
 
 sourceCompatibility = '1.8'
-version = '2.7.0'
+version = '2.7.0.1'
 
 repositories {
     maven { url "http://repo.dotcms.com/artifactory/libs-release" }
+    mavenCentral()
 }
 
 configurations {
     osgiLibs
+    all*.exclude group: 'xml-apis', module:'xml-apis'
+    all*.exclude group: 'xerces'
+    all*.exclude group: 'commons-logging', module: 'commons-logging'
 }
 
 // https://cwiki.apache.org/confluence/display/TIKA#Home-MigratingtoTika2.0.0
 // https://cwiki.apache.org/confluence/display/TIKA/Logging
 // https://www.slf4j.org/codes.html#noProviders
 dependencies {
-    compile ('com.dotcms:dotcms:22.05') { transitive = true }
-    compile (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0') { transitive = false }
-    compile (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0') { transitive = false }
-    compile (group: 'org.apache.tika', name: 'tika-parser-scientific-package', version: '2.7.0') { transitive = false }
-    compile (group: 'org.apache.tika', name: 'tika-parser-sqlite3-package', version: '2.7.0') { transitive = false }
-    compile (group: 'org.apache.tika', name: 'tika-emitter-opensearch', version: '2.7.0') { transitive = false }
+    compile ('com.dotcms:dotcms:22.05')
+    compile (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0')
+    compile (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0')
 
-    osgiLibs (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0') { transitive = false }
-    osgiLibs (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0') { transitive = false }
-    osgiLibs (group: 'org.apache.tika', name: 'tika-parser-scientific-package', version:'2.7.0') { transitive = false }
-    osgiLibs (group: 'org.apache.tika', name: 'tika-parser-sqlite3-package', version:'2.7.0') { transitive = false }
-    osgiLibs (group: 'org.apache.tika', name: 'tika-emitter-opensearch', version: '2.7.0') { transitive = false }
-    osgiLibs (group: 'org.slf4j', name: 'slf4j-api', version: '2.0.3') { transitive = false }
-    osgiLibs (group: 'org.slf4j', name: 'jul-to-slf4j', version: '2.0.3') { transitive = false }
-    osgiLibs (group: 'org.slf4j', name: 'jcl-over-slf4j', version: '2.0.3') { transitive = false }
-    osgiLibs (group: 'org.slf4j', name: 'log4j-over-slf4j', version:'2.0.3') { transitive = false }
-    osgiLibs (group: 'commons-io', name: 'commons-io', version: '2.11.0') { transitive = false }
-    osgiLibs (group: 'ch.qos.reload4j', name: 'reload4j', version: '1.2.25') { transitive = false }
-    osgiLibs (group: 'org.slf4j', name: 'slf4j-reload4j', version: '2.0.3') { transitive = false }
+
+    osgiLibs (group: 'org.apache.tika', name: 'tika-core', version: '2.7.0')
+    osgiLibs (group: 'org.apache.tika', name: 'tika-parsers-standard-package', version:'2.7.0')
+    osgiLibs ('org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0')
+    osgiLibs ('com.lmax:disruptor:3.4.4')
+
 }
+
 
 
 
@@ -56,15 +52,11 @@ jar {
                 'Bundle-classpath': "${classPathLibraries()}",
                 'DynamicImport-Package': '*',
                 'Import-Package': '''
-                    javax.servlet.http;version=0,
-                    javax.servlet;version=0,
                     com.dotmarketing.filters;version=0,
                     com.dotmarketing.osgi;version=0,
                     com.dotmarketing.util;version=0,
                     com.dotmarketing.exception;version=0,
-                    org.apache.felix.http.api;version=0,
-                    org.osgi.framework;version=0,
-                    org.osgi.service.http;version=0
+                    org.osgi.framework;version=0
                 '''
         )
     }
